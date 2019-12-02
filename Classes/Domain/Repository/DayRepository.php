@@ -317,10 +317,15 @@ class DayRepository extends Repository
 
         // add categories
         if (!empty($this->settings['categories'])) {
+            // Do not remove next line, because of related MM table to sys_category_record_mm
+            $queryBuilder->selectLiteral('DISTINCT ' . $queryBuilder->quoteIdentifier('day') . '.*');
+
             $this->databaseService->addConstraintForCategories(
                 $queryBuilder,
                 GeneralUtility::trimExplode(',', $this->settings['categories'], true)
             );
+        } else {
+            $queryBuilder->select('day.*');
         }
 
         $queryBuilder->andWhere(
@@ -331,7 +336,6 @@ class DayRepository extends Repository
         );
 
         $queryBuilder
-            ->select('day.*')
             ->from('tx_events2_domain_model_day', 'day')
             ->leftJoin(
                 'day',
@@ -344,8 +348,7 @@ class DayRepository extends Repository
             )
             ->orderBy('event.top_of_list', 'DESC')
             ->addOrderBy('day.sort_day_time', 'ASC')
-            ->addOrderBy('day.day_time', 'ASC')
-            ->groupBy('day.uid'); // keep that because of category relation
+            ->addOrderBy('day.day_time', 'ASC');
 
         $this->emitModifyQueriesOfFindByTimestampSignal($queryBuilder, $timestamp, $this->settings);
         $extbaseQuery->statement($queryBuilder);
