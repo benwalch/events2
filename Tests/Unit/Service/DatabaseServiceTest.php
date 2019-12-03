@@ -71,12 +71,10 @@ class DatabaseServiceTest extends UnitTestCase
         $statement->fetchAll()->shouldBeCalled()->willReturn([]);
 
         $queryBuilder->quoteIdentifier('event.uid')->shouldBeCalled()->willReturn('`event.uid`');
-        $queryBuilder->createNamedParameter($startDate->format('U'), 1)->shouldBeCalled()->willReturn(':startDate');
-        $queryBuilder->createNamedParameter($endDate->format('U'), 1)->shouldBeCalled()->willReturn(':endDate');
 
         $expressionBuilder->eq('day.event', '`event.uid`')->shouldBeCalled();
-        $expressionBuilder->gte('day.day', ':startDate')->shouldBeCalled();
-        $expressionBuilder->lt('day.day', ':endDate')->shouldBeCalled();
+        $expressionBuilder->gte('day.day', $startDate->format('U'))->shouldBeCalled();
+        $expressionBuilder->lt('day.day', $endDate->format('U'))->shouldBeCalled();
 
         $queryBuilder->select('event.uid', 'event.title', 'day.day')->shouldBeCalled()->willReturn($queryBuilder->reveal());
         $queryBuilder->from('tx_events2_domain_model_day', 'day')->shouldBeCalled()->willReturn($queryBuilder->reveal());
@@ -125,14 +123,12 @@ class DatabaseServiceTest extends UnitTestCase
         $statement->fetchAll()->shouldBeCalled()->willReturn([]);
 
         $queryBuilder->quoteIdentifier('event.uid')->shouldBeCalled()->willReturn('`event.uid`');
-        $queryBuilder->createNamedParameter([21, 22, 23], 101)->shouldBeCalled()->willReturn(':storagePids');
-        $queryBuilder->createNamedParameter($startDate->format('U'), 1)->shouldBeCalled()->willReturn(':startDate');
-        $queryBuilder->createNamedParameter($endDate->format('U'), 1)->shouldBeCalled()->willReturn(':endDate');
 
         $expressionBuilder->eq('day.event', '`event.uid`')->shouldBeCalled();
-        $expressionBuilder->in('event.pid', ':storagePids')->shouldBeCalled();
-        $expressionBuilder->gte('day.day', ':startDate')->shouldBeCalled();
-        $expressionBuilder->lt('day.day', ':endDate')->shouldBeCalled();
+        $expressionBuilder->in('day.pid', [21, 22, 23])->shouldBeCalled();
+        $expressionBuilder->in('event.pid', [21, 22, 23])->shouldBeCalled();
+        $expressionBuilder->gte('day.day', $startDate->format('U'))->shouldBeCalled();
+        $expressionBuilder->lt('day.day', $endDate->format('U'))->shouldBeCalled();
 
         $queryBuilder->select('event.uid', 'event.title', 'day.day')->shouldBeCalled()->willReturn($queryBuilder->reveal());
         $queryBuilder->from('tx_events2_domain_model_day', 'day')->shouldBeCalled()->willReturn($queryBuilder->reveal());
@@ -147,6 +143,7 @@ class DatabaseServiceTest extends UnitTestCase
             ->shouldBeCalled()
             ->willReturn($queryBuilder->reveal());
 
+        $queryBuilder->andWhere(Argument::cetera())->shouldBeCalled()->willReturn($queryBuilder->reveal());
         $queryBuilder->where(Argument::cetera())->shouldBeCalled()->willReturn($queryBuilder->reveal());
         $queryBuilder->expr(Argument::cetera())->shouldBeCalled()->willReturn($expressionBuilder->reveal());
         $queryBuilder->execute(Argument::cetera())->shouldBeCalled()->willReturn($statement->reveal());
@@ -183,22 +180,19 @@ class DatabaseServiceTest extends UnitTestCase
 
         $queryBuilder->quoteIdentifier('event.uid')->shouldBeCalled()->willReturn('`event.uid`');
         $queryBuilder->quoteIdentifier('category_mm.uid_foreign')->shouldBeCalled()->willReturn('`category_mm.uid_foreign`');
-        $queryBuilder->createNamedParameter([21, 22, 23], 101)->shouldBeCalled()->willReturn(':storagePids');
-        $queryBuilder->createNamedParameter('tx_events2_domain_model_event', 2)->shouldBeCalled()->willReturn(':eventTable');
-        $queryBuilder->createNamedParameter('categories', 2)->shouldBeCalled()->willReturn(':eventFieldname');
-        $queryBuilder->createNamedParameter([31, 32, 33], 101)->shouldBeCalled()->willReturn(':categories');
-        $queryBuilder->createNamedParameter($startDate->format('U'), 1)->shouldBeCalled()->willReturn(':startDate');
-        $queryBuilder->createNamedParameter($endDate->format('U'), 1)->shouldBeCalled()->willReturn(':endDate');
+        $queryBuilder->quote('tx_events2_domain_model_event', 2)->shouldBeCalled()->willReturn('\'tx_events2_domain_model_event\'');
+        $queryBuilder->quote('categories', 2)->shouldBeCalled()->willReturn('\'categories\'');
 
         $expressionBuilder->eq('day.event', '`event.uid`')->shouldBeCalled();
-        $expressionBuilder->in('event.pid', ':storagePids')->shouldBeCalled();
+        $expressionBuilder->in('event.pid', [21, 22, 23])->shouldBeCalled();
         $expressionBuilder->eq('event.uid', '`category_mm.uid_foreign`')->shouldBeCalled();
-        $expressionBuilder->eq('category_mm.tablenames', ':eventTable')->shouldBeCalled();
-        $expressionBuilder->eq('category_mm.fieldname', ':eventFieldname')->shouldBeCalled();
+        $expressionBuilder->eq('category_mm.tablenames', '\'tx_events2_domain_model_event\'')->shouldBeCalled();
+        $expressionBuilder->eq('category_mm.fieldname', '\'categories\'')->shouldBeCalled();
         $expressionBuilder->andX('', '', '')->shouldBeCalled()->willReturn(new CompositeExpression('AND'));
-        $expressionBuilder->in('category_mm.uid_local', ':categories')->shouldBeCalled();
-        $expressionBuilder->gte('day.day', ':startDate')->shouldBeCalled();
-        $expressionBuilder->lt('day.day', ':endDate')->shouldBeCalled();
+        $expressionBuilder->in('category_mm.uid_local', [31, 32, 33])->shouldBeCalled();
+        $expressionBuilder->in('day.pid', [21, 22, 23])->shouldBeCalled();
+        $expressionBuilder->gte('day.day', $startDate->format('U'))->shouldBeCalled();
+        $expressionBuilder->lt('day.day', $endDate->format('U'))->shouldBeCalled();
 
         $queryBuilder->select('event.uid', 'event.title', 'day.day')->shouldBeCalled()->willReturn($queryBuilder->reveal());
         $queryBuilder->from('tx_events2_domain_model_day', 'day')->shouldBeCalled()->willReturn($queryBuilder->reveal());
@@ -223,6 +217,7 @@ class DatabaseServiceTest extends UnitTestCase
             ->shouldBeCalled()
             ->willReturn($queryBuilder->reveal());
 
+        $queryBuilder->andWhere(Argument::cetera())->shouldBeCalled()->willReturn($queryBuilder->reveal());
         $queryBuilder->where(Argument::cetera())->shouldBeCalled()->willReturn($queryBuilder->reveal());
         $queryBuilder->expr(Argument::cetera())->shouldBeCalled()->willReturn($expressionBuilder->reveal());
         $queryBuilder->execute(Argument::cetera())->shouldBeCalled()->willReturn($statement->reveal());
